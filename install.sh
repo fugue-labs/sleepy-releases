@@ -13,7 +13,7 @@
 #
 # Environment variables:
 #
-#     SLEEPY_VERSION   version to install (default: 0.3.2)
+#     SLEEPY_VERSION   version to install (default: 0.3.3)
 #     SLEEPY_REPO      GitHub repo in OWNER/NAME form (default: fugue-labs/sleepy-releases)
 #     SLEEPY_BASE_URL  override the download base URL (default: derived from
 #                      SLEEPY_REPO and SLEEPY_VERSION). Useful for mirrors or
@@ -33,7 +33,7 @@ set -u
 
 # -- configuration ----------------------------------------------------------
 
-SLEEPY_VERSION="${SLEEPY_VERSION:-0.3.2}"
+SLEEPY_VERSION="${SLEEPY_VERSION:-0.3.3}"
 SLEEPY_REPO="${SLEEPY_REPO:-fugue-labs/sleepy-releases}"
 SLEEPY_PREFIX="${SLEEPY_PREFIX:-}"
 SLEEPY_BASE_URL="${SLEEPY_BASE_URL:-https://github.com/${SLEEPY_REPO}/releases/download/v${SLEEPY_VERSION}}"
