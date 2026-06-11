@@ -25,6 +25,17 @@ This repository hosts binary releases. The source code is
 proprietary (© Fugue Labs); binaries are licensed under the
 [Sleepy Binary License Agreement](EULA.md).
 
+## The interactive TUI
+
+Run bare `sleepy` in a project for the full-screen agent: chat with
+it, or type `evolve <path>` — it analyzes the project, proposes
+targets with auto-detected evaluators, evolves them with live
+progress (generation, fitness multiplier, token cost), and ends in a
+review screen where you accept, reject, or open a PR for each
+improvement. Nothing touches your files without your accept.
+
+![sleepy TUI — a real interactive session](demo-tui.gif)
+
 ## How it works
 
 1. **Mutate** — an LLM (yours) proposes a code change via MCP sampling.
