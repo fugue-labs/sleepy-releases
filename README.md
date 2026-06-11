@@ -2,6 +2,8 @@
 
 > Point sleepy at a benchmarked codebase, walk away, get a faster version.
 
+![sleepy demo — a real evolution run](demo.gif)
+
 Sleepy is an evolutionary code-optimization engine. You provide a
 target source file, a correctness gate (your existing test suite),
 and a benchmark. Sleepy iteratively mutates the code via an LLM —
@@ -22,6 +24,21 @@ The trust model is the point:
 This repository hosts binary releases. The source code is
 proprietary (© Fugue Labs); binaries are licensed under the
 [Sleepy Binary License Agreement](EULA.md).
+
+## How it works
+
+1. **Mutate** — an LLM (yours) proposes a code change via MCP sampling.
+2. **Gate** — your test suite must pass; fast-but-wrong scores zero
+   and is discarded. This is enforced for every candidate, always.
+3. **Measure** — your benchmark scores the survivor.
+4. **Select** — winners join the population; evolution repeats.
+
+Every run is auditable after the fact:
+
+```bash
+sleepy export <run-id> --lineage   # why the winner won, generation by generation
+sleepy replay <run-id> --list      # every candidate the run produced
+```
 
 ## Install
 
