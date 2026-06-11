@@ -33,7 +33,7 @@ set -u
 
 # -- configuration ----------------------------------------------------------
 
-SLEEPY_VERSION="${SLEEPY_VERSION:-0.3.4}"
+SLEEPY_VERSION="${SLEEPY_VERSION:-0.3.5}"
 SLEEPY_REPO="${SLEEPY_REPO:-fugue-labs/sleepy-releases}"
 SLEEPY_PREFIX="${SLEEPY_PREFIX:-}"
 SLEEPY_BASE_URL="${SLEEPY_BASE_URL:-https://github.com/${SLEEPY_REPO}/releases/download/v${SLEEPY_VERSION}}"
