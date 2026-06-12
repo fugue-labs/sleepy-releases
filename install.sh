@@ -1,7 +1,11 @@
 #!/bin/sh
-# install.sh — sleepy installer
+# install.sh — sleepy client installer
 #
-# Detects OS and architecture, downloads the matching sleepy binary from
+# Sleepy is a hosted evolutionary code-optimization service driven over
+# MCP — connect your client to http://sleepy.run/mcp and your own model
+# evolves verified-faster code. This script installs the companion
+# client tooling for hosted runs (worker, watch, status, export, sync):
+# it detects OS and architecture, downloads the matching binary from
 # the GitHub Releases page, verifies its SHA-256 checksum, and installs
 # it to a directory on the user's PATH.
 #
