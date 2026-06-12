@@ -1,57 +1,65 @@
 # sleepy
 
-> Point sleepy at a benchmarked codebase, walk away, get a faster version.
+> Connect your agent to the sleepy service. Your own model evolves
+> verified-faster code.
 
 ![sleepy demo — a real evolution run](demo.gif)
 
-Sleepy is an evolutionary code-optimization engine. You provide a
-target source file, a correctness gate (your existing test suite),
-and a benchmark. Sleepy iteratively mutates the code via an LLM —
-**your** LLM, called with **your** credentials — measures the result,
-keeps winners, and discards losers.
+Sleepy is a **hosted evolutionary code-optimization service**, driven
+entirely over MCP:
+
+```bash
+claude mcp add --transport http sleepy http://sleepy.run/mcp
+```
+
+then ask your agent to optimize a benchmarked file. The service
+orchestrates an evolutionary search around **your** model: mutations
+are generated through MCP sampling (your client, your model, your
+credentials), setup happens through MCP elicitation, and every
+candidate is evaluated on **your** machine against your real tests and
+benchmarks.
 
 The trust model is the point:
 
-- **Your code never leaves your machine.** Evaluation (tests +
-  benchmarks) runs locally.
+- **Your code executes only on your machine.** Evaluation (tests +
+  benchmarks) runs locally — the service never executes user code.
 - **Your API keys never leave your machine.** The hosted engine
-  orchestrates the search via MCP sampling; it holds no keys and
-  executes no user code.
+  orchestrates the search via MCP sampling; it holds no keys.
 - **Fast-but-wrong is impossible by construction.** Your test suite
   must pass before a benchmark is ever measured; any candidate that
-  breaks tests scores zero and is discarded.
+  breaks tests scores zero and is discarded — and the final champion
+  is re-verified before it's worth quoting.
 
-This repository hosts binary releases. The source code is
-proprietary (© Fugue Labs); binaries are licensed under the
-[Sleepy Binary License Agreement](EULA.md).
+This repository hosts the **companion client tooling** for hosted
+runs. The source code is proprietary (© Fugue Labs); binaries are
+licensed under the [Sleepy Binary License Agreement](EULA.md).
 
-## The interactive TUI
+## How a run works
 
-Run bare `sleepy` in a project for the full-screen agent: chat with
-it, or type `evolve <path>` — it analyzes the project, proposes
-targets with auto-detected evaluators, evolves them with live
-progress (generation, fitness multiplier, token cost), and ends in a
-review screen where you accept, reject, or open a PR for each
-improvement. Nothing touches your files without your accept.
+1. **Create** — your MCP client calls `evolve.create` (or the
+   zero-argument `evolve.create_interactive`, which collects config
+   and the seed through elicitation forms).
+2. **Mutate** — the service asks your client for each mutation via
+   MCP sampling; your model does the thinking.
+3. **Gate** — your test suite must pass; fast-but-wrong scores zero.
+   This is enforced for every candidate, always.
+4. **Measure** — your benchmark scores the survivor; fitness is
+   reported back with `evolve.report`.
+5. **Select** — winners join the population; evolution repeats until
+   convergence, then `evolve.export` returns the champion.
 
-![sleepy TUI — a real interactive session](demo-tui.gif)
-
-## How it works
-
-1. **Mutate** — an LLM (yours) proposes a code change via MCP sampling.
-2. **Gate** — your test suite must pass; fast-but-wrong scores zero
-   and is discarded. This is enforced for every candidate, always.
-3. **Measure** — your benchmark scores the survivor.
-4. **Select** — winners join the population; evolution repeats.
-
-Every run is auditable after the fact:
+Your agent can drive that loop itself, or you can hand evaluation to
+the worker:
 
 ```bash
-sleepy export <run-id> --lineage   # why the winner won, generation by generation
-sleepy replay <run-id> --list      # every candidate the run produced
+sleepy worker --target ./hot_path.go --server https://sleepy.run --run <run-id>
 ```
 
-## Install
+## Client tooling install
+
+The binaries in this repo are the client half: `worker` (automated
+local evaluation), `watch` (live dashboard), `status`, `export`,
+`sync`, `inject`, and `doctor`.
 
 ### One-line install
 
@@ -79,33 +87,23 @@ verify against `checksums.txt`, and put `sleepy` on your `PATH`.
 Supported platforms: macOS (Apple Silicon + Intel) and Linux
 (amd64 + arm64).
 
-## Quick start
+## Observing runs
 
 ```bash
-cd your-project        # any repo with a test suite and a benchmark
-
-export ANTHROPIC_API_KEY=sk-ant-...   # or OPENAI_API_KEY, OLLAMA_HOST,
-                                      # Codex OAuth, or `claude` on PATH
-
-sleepy evolve \
-  --target ./hot_path.go \
-  --eval benchmark:BenchmarkHotPath \
-  --population 10 \
-  --generations 20
+sleepy watch <run-id> --server https://sleepy.run    # live dashboard: spend → gain, lineage
+sleepy status <run-id> --server https://sleepy.run
+sleepy export <run-id> --server https://sleepy.run --history --format csv
 ```
 
-Sleepy prints the baseline fitness, per-generation progress, and a
-final summary with the measured speedup. Ctrl-C exits cleanly: the
-best candidate is exported and your original file restored on error.
-
-Supported evaluators: Go (`test:`/`benchmark:`), Python
-(`pytest:`/`pybench:`), Rust (`cargotest:`/`cargobench:`),
-JS/TS (`vitest:`/`buntest:`), C++, Zig, Java, or bring your own
-runner with `command:./my-script.sh`.
+Supported evaluators for worker-side measurement: Go
+(`test:`/`benchmark:`), Python (`pytest:`/`pybench:`), Rust
+(`cargotest:`/`cargobench:`), JS/TS (`vitest:`/`vitestbench:`), C++,
+Zig, Java, or bring your own runner with `command:./my-script.sh` —
+all gated behind your tests.
 
 ## Telemetry
 
-Sleepy collects anonymous usage metrics (command, evaluator type,
+The client collects anonymous usage metrics (command, evaluator type,
 language, provider name, duration, generation count — never source
 code, file paths, prompts, or keys). Disable with
 `SLEEPY_NO_TELEMETRY=1`, `--no-telemetry`, or
