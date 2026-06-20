@@ -2,7 +2,7 @@
 # install.sh — sleepy client installer
 #
 # Sleepy is a hosted evolutionary code-optimization service driven over
-# MCP — connect your client to http://sleepy.run/mcp and your own model
+# MCP — connect your client to https://sleepy.run/mcp and your own model
 # evolves verified-faster code. This script installs the companion
 # client tooling for hosted runs (worker, watch, status, export, sync):
 # it detects OS and architecture, downloads the matching binary from
@@ -275,8 +275,9 @@ esac
 cat <<EOF
 
 Next steps:
-  sleepy --help                     # see available commands
-  sleepy evolve --target ./file.go  # start evolving a source file
+  open https://sleepy.run/signup
+  claude mcp add --transport http sleepy https://sleepy.run/mcp
+  sleepy worker --target ./file.go --server https://sleepy.run --eval benchmark:BenchmarkName
 
 Docs: https://github.com/${SLEEPY_REPO}#readme
 EOF

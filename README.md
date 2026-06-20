@@ -9,7 +9,7 @@ Sleepy is a **hosted evolutionary code-optimization service**, driven
 entirely over MCP:
 
 ```bash
-claude mcp add --transport http sleepy http://sleepy.run/mcp
+claude mcp add --transport http sleepy https://sleepy.run/mcp
 ```
 
 then ask your agent to optimize a benchmarked file. The service
