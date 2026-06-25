@@ -1,0 +1,64 @@
+name: Onboarding help
+description: Help with signup, install, MCP connection, worker auth, or first run setup.
+title: "[onboarding] "
+labels:
+  - onboarding
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing, try https://sleepy.run/start and https://sleepy.run/status.
+
+        Do not paste source code, API keys, OAuth tokens, private run exports, or proprietary benchmark output into a public issue.
+  - type: input
+    id: version
+    attributes:
+      label: Sleepy version
+      description: Output from `sleepy version`.
+      placeholder: sleepy 0.5.1 ...
+    validations:
+      required: true
+  - type: dropdown
+    id: step
+    attributes:
+      label: Where did you get stuck?
+      options:
+        - Signup or workspace dashboard
+        - Install or PATH
+        - MCP registration
+        - OAuth prompt
+        - Worker authentication
+        - Tests or benchmark evaluator
+        - Watch, status, or export
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: Commands run
+      description: Include non-sensitive commands. Redact tokens, source paths if private, and proprietary benchmark data.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Non-sensitive output
+      description: Paste only safe error output. Do not include secrets, source, private run exports, or proprietary benchmark output.
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Environment
+      description: OS, shell, MCP client, and whether this is a browser, terminal, or CI workflow.
+    validations:
+      required: true

@@ -8,6 +8,12 @@
 Sleepy is a **hosted evolutionary code-optimization service**, driven
 entirely over MCP:
 
+Start here:
+
+```text
+https://sleepy.run/start
+```
+
 ```bash
 claude mcp add --transport http sleepy https://sleepy.run/mcp
 ```
@@ -111,5 +117,17 @@ code, file paths, prompts, or keys). Disable with
 
 ## Support
 
+First-run guide:
+https://sleepy.run/start
+
+Status:
+https://sleepy.run/status
+
+Support guide:
+https://sleepy.run/support
+
 Open an issue here for bugs and questions:
 https://github.com/fugue-labs/sleepy-releases/issues
+
+Do not include source code, API keys, OAuth tokens, private run
+exports, or proprietary benchmark output in public issues.

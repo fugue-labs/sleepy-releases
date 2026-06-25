@@ -1,0 +1,67 @@
+name: Bug report
+description: Report a Sleepy client or hosted alpha bug with safe diagnostics.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Public issues are visible to everyone. Do not include source code, API keys, OAuth tokens, private run exports, or proprietary benchmark output.
+  - type: input
+    id: version
+    attributes:
+      label: Sleepy version
+      description: Output from `sleepy version`.
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and architecture
+      placeholder: macOS arm64, Linux amd64, etc.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Hosted service
+        - Installer
+        - MCP connection
+        - Worker
+        - Evaluator
+        - TUI
+        - Watch/status/export
+        - CI
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Safe diagnostics
+      description: Include `sleepy doctor` output if safe. Redact private paths, tokens, run exports, and proprietary benchmark output.
+      render: text
+    validations:
+      required: false

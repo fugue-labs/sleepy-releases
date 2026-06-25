@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Start guide
+    url: https://sleepy.run/start
+    about: Follow the hosted first-run checklist before filing onboarding issues.
+  - name: Service status
+    url: https://sleepy.run/status
+    about: Check hosted service health and readiness.
+  - name: Support guide
+    url: https://sleepy.run/support
+    about: See what diagnostics are safe to share publicly.
