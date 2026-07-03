@@ -96,10 +96,15 @@ Supported platforms: macOS (Apple Silicon + Intel) and Linux
 ## Observing runs
 
 ```bash
-sleepy watch <run-id> --server https://sleepy.run    # live dashboard: spend → gain, lineage
-sleepy status <run-id> --server https://sleepy.run
+sleepy watch <run-id> --server https://sleepy.run    # live dashboard: phase, pending work, spend -> gain
+sleepy status <run-id> --server https://sleepy.run   # phase, oldest pending age, lifecycle controls
 sleepy export <run-id> --server https://sleepy.run --history --format csv
 ```
+
+Long hosted runs emit periodic CLI heartbeats while waiting on remote
+sampling/reporting. The heartbeat includes the run ID, generation,
+candidate counts, pending age, current best score, and exact
+`status`/`watch`/`pause`/`cancel` commands.
 
 Supported evaluators for worker-side measurement: Go
 (`test:`/`benchmark:`), Python (`pytest:`/`pybench:`), Rust
