@@ -34,11 +34,18 @@ you under this agreement.
 
 ## 3. Your code and your credentials
 
-The Software runs evaluations on your machine and calls your LLM
-provider with your credentials. Fugue Labs' hosted service does not
-receive your source code or API keys. Anonymous usage telemetry is
-collected as described in the Software's first-run notice and can
-be disabled (`SLEEPY_NO_TELEMETRY=1`, `--no-telemetry`, or
+The Software runs candidate generation and evaluations on your machine,
+calls your selected LLM provider using your credentials, and keeps source,
+candidates, prompts, provider payloads, raw measurements, and replay evidence
+in the client-owned executor. When you use the canonical hosted executor/job
+service, the client sends source-free scheduling commands and authenticated
+decision projections for durable orchestration. The hosted service does not
+receive or execute your source code, does not receive model-provider API keys,
+and does not use customer artifacts or outcomes for shared or cross-workspace
+learning. The explicitly selected, end-of-life MCP compatibility adapter is
+outside this code-blind product claim. Anonymous usage telemetry is collected
+as described in the Software's first-run notice and can be disabled
+(`SLEEPY_NO_TELEMETRY=1`, `--no-telemetry`, or
 `sleepy config set telemetry false`).
 
 ## 4. Third-party components

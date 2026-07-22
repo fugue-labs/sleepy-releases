@@ -1,138 +1,119 @@
 # sleepy
 
-> Connect your agent to the sleepy service. Your own model evolves
-> verified-faster code.
+> Point the Sleepy worker at benchmarked code and get a verified faster version.
 
-![sleepy demo — a real evolution run](demo.gif)
+Sleepy is an evolutionary code-optimization service with a code-blind hosted
+control plane. The service keeps durable run commands, leases, quotas, and
+source-free progress. The companion client on your machine owns the search
+engine, model session, source, candidates, evaluator, and raw evidence.
 
-Sleepy is a **hosted evolutionary code-optimization service**, driven
-entirely over MCP:
+The trust boundary is the product:
 
-Start here:
+- The hosted service never receives or executes your source code.
+- Your model credentials and provider payloads stay in the client-owned worker.
+- Candidate execution and evaluation happen locally in a pinned, fail-closed
+  OCI sandbox.
+- Every benchmark is guarded by the project's correctness tests, and the final
+  champion is re-verified immediately before it can be written.
+- The provider-neutral executor/job protocol is the supported product contract.
+  MCP sampling is end-of-life and remains only as an explicit compatibility
+  adapter outside the code-blind product claim.
 
-```text
-https://sleepy.run/start
-```
+This public repository distributes the proprietary companion client. Binaries
+are licensed under the [Sleepy Binary License Agreement](EULA.md).
 
-```bash
-claude mcp add --transport http sleepy https://sleepy.run/mcp
-```
+## Quick start
 
-then ask your agent to optimize a benchmarked file. The service
-orchestrates an evolutionary search around **your** model: mutations
-are generated through MCP sampling (your client, your model, your
-credentials), setup happens through MCP elicitation, and every
-candidate is evaluated on **your** machine against your real tests and
-benchmarks.
-
-The trust model is the point:
-
-- **Your code executes only on your machine.** Evaluation (tests +
-  benchmarks) runs locally — the service never executes user code.
-- **Your API keys never leave your machine.** The hosted engine
-  orchestrates the search via MCP sampling; it holds no keys.
-- **Fast-but-wrong is impossible by construction.** Your test suite
-  must pass before a benchmark is ever measured; any candidate that
-  breaks tests scores zero and is discarded — and the final champion
-  is re-verified before it's worth quoting.
-
-This repository hosts the **companion client tooling** for hosted
-runs. The source code is proprietary (© Fugue Labs); binaries are
-licensed under the [Sleepy Binary License Agreement](EULA.md).
-
-## How a run works
-
-1. **Create** — your MCP client calls `evolve.create` (or the
-   zero-argument `evolve.create_interactive`, which collects config
-   and the seed through elicitation forms).
-2. **Mutate** — the service asks your client for each mutation via
-   MCP sampling; your model does the thinking.
-3. **Gate** — your test suite must pass; fast-but-wrong scores zero.
-   This is enforced for every candidate, always.
-4. **Measure** — your benchmark scores the survivor; fitness is
-   reported back with `evolve.report`.
-5. **Select** — winners join the population; evolution repeats until
-   convergence, then `evolve.export` returns the champion.
-
-Your agent can drive that loop itself, or you can hand evaluation to
-the worker:
+Sign in, create a workspace API key, install a reviewed release, configure your
+local model provider, and run the readiness check from a Go checkout:
 
 ```bash
-sleepy worker --target ./hot_path.go --server https://sleepy.run --run <run-id>
+open https://sleepy.run/signup
+open https://sleepy.run/workspace
+export SLEEPY_TOKEN=slpy_...
+sleepy doctor --project --server https://sleepy.run
 ```
 
-## Client tooling install
-
-The binaries in this repo are the client half: `worker` (automated
-local evaluation), `watch` (live dashboard), `status`, `export`,
-`sync`, `inject`, and `doctor`.
-
-### One-line install
+Start a hosted run:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/fugue-labs/sleepy-releases/main/install.sh | sh
+sleepy worker \
+  --target ./sort.go \
+  --server https://sleepy.run \
+  --eval benchmark:BenchmarkSort1000 \
+  --population 10 \
+  --generations 20
 ```
 
-The script detects your OS/architecture, downloads the matching
-binary from this repo's Releases, verifies its SHA-256 checksum, and
-installs to `/usr/local/bin/sleepy` (or `$HOME/.local/bin/sleepy`).
-It is intentionally readable — review it first if you like.
+The worker computes and binds the evaluator contract, creates the code-blind
+hosted run, generates candidates with your configured model, evaluates them
+locally behind the restore transaction, and reports only authenticated
+source-free decisions.
 
-### Homebrew
+To optimize changed benchmarked Go files and open an evidence-bearing,
+policy-gated pull request through your authenticated GitHub CLI:
+
+```bash
+gh auth status
+sleepy ci --server https://sleepy.run --base origin/main --create-pr
+```
+
+`sleepy ci --create-pr` applies only re-verified wins, commits only those target
+files, runs tests and static checks, evaluates API/dependency/unsafe/diff-size/
+licensing/provenance gates, pushes once, and opens a PR with measurement and
+replay evidence.
+
+## Install
+
+Choose an approved version from [Releases](https://github.com/fugue-labs/sleepy-releases/releases),
+download the installer sealed with that exact release, inspect it, and run it:
+
+```bash
+version='<reviewed-version>'
+curl --proto '=https' --tlsv1.2 -fsSLo install.sh \
+  "https://github.com/fugue-labs/sleepy-releases/releases/download/v${version}/install.sh"
+less install.sh
+SLEEPY_VERSION="${version}" sh install.sh
+```
+
+Or install with Homebrew:
 
 ```bash
 brew install fugue-labs/tap/sleepy
 ```
 
-### Manual
+Release archives support macOS (Apple Silicon and Intel) and Linux (amd64 and
+arm64). Every archive is checksum-bound; current sealed releases also include
+SBOM, provenance, manifest, and Sigstore verification material.
 
-Download the archive for your platform from
-[Releases](https://github.com/fugue-labs/sleepy-releases/releases),
-verify against `checksums.txt`, and put `sleepy` on your `PATH`.
-
-Supported platforms: macOS (Apple Silicon + Intel) and Linux
-(amd64 + arm64).
-
-## Observing runs
+## Observe and audit
 
 ```bash
-sleepy watch <run-id> --server https://sleepy.run    # live dashboard: phase, pending work, spend -> gain
-sleepy status <run-id> --server https://sleepy.run   # phase, oldest pending age, lifecycle controls
-sleepy export <run-id> --server https://sleepy.run --history --format csv
+sleepy watch <run-id> --server https://sleepy.run
+sleepy status <run-id> --server https://sleepy.run
+sleepy export <run-id> --server https://sleepy.run --lineage
+sleepy export <run-id> --server https://sleepy.run --pareto
 ```
 
-Long hosted runs emit periodic CLI heartbeats while waiting on remote
-sampling/reporting. The heartbeat includes the run ID, generation,
-candidate counts, pending age, current best score, and exact
-`status`/`watch`/`pause`/`cancel` commands.
-
-Supported evaluators for worker-side measurement: Go
-(`test:`/`benchmark:`), Python (`pytest:`/`pybench:`), Rust
-(`cargotest:`/`cargobench:`), JS/TS (`vitest:`/`vitestbench:`), C++,
-Zig, Java, or bring your own runner with `command:./my-script.sh` —
-all gated behind your tests.
+Cancellation is distinct from convergence: a cancelled run remains available
+for export but never auto-applies its current champion.
 
 ## Telemetry
 
-The client collects anonymous usage metrics (command, evaluator type,
-language, provider name, duration, generation count — never source
-code, file paths, prompts, or keys). Disable with
-`SLEEPY_NO_TELEMETRY=1`, `--no-telemetry`, or
+The client collects anonymous operational metrics such as command, evaluator
+type, language, provider name, duration, and generation count. It does not send
+source, local paths, prompts, provider payloads, keys, or raw benchmark output.
+Disable telemetry with `SLEEPY_NO_TELEMETRY=1`, `--no-telemetry`, or
 `sleepy config set telemetry false`.
 
-## Support
+## Support and policies
 
-First-run guide:
-https://sleepy.run/start
+- Start: https://sleepy.run/start
+- Status: https://sleepy.run/status
+- Support: https://sleepy.run/support
+- Privacy: https://sleepy.run/privacy
+- Terms: https://sleepy.run/terms
 
-Status:
-https://sleepy.run/status
-
-Support guide:
-https://sleepy.run/support
-
-Open an issue here for bugs and questions:
-https://github.com/fugue-labs/sleepy-releases/issues
-
-Do not include source code, API keys, OAuth tokens, private run
-exports, or proprietary benchmark output in public issues.
+Open public bugs and questions in this repository's issue tracker. Never attach
+source code, API keys, OAuth tokens, private run exports, or proprietary
+benchmark output to a public issue.
